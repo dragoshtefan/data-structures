@@ -1,3 +1,5 @@
+package collectionInterfaces;
+
 import java.util.Set;
 
 public interface Map<K, V> {

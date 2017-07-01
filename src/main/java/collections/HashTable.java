@@ -1,13 +1,13 @@
+package collections;
+import collectionInterfaces.Map;
+
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
 
 public class HashTable <K,V> implements Serializable, Map<K, V> {
 
-    private Set<K> keySet;
-
-    private
-
+    private Map.Entry<K, V>[] entries;
 
     public HashTable(){
     }
@@ -44,7 +44,4 @@ public class HashTable <K,V> implements Serializable, Map<K, V> {
         return null;
     }
 
-    public Iterator iterator() {
-        return null;
-    }
 }
