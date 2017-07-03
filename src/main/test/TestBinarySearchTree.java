@@ -1,10 +1,12 @@
+import static org.junit.Assert.*;
+
 import collections.BinarySearchTree;
 import exceptions.DuplicateValueException;
 import exceptions.NullValueException;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by Dragoshescu on 01.07.2017.
@@ -46,21 +48,23 @@ public class TestBinarySearchTree {
 
     @Test
     public void testCDeletion() {
-        assertFalse(tree.removeItem(null));
-        assertFalse(tree.removeItem("string5"));
+        int size = tree.getSize();
+        tree.removeItem(null);
+        assertEquals(size, tree.getSize());
+        tree.removeItem("string5");
+        assertEquals(size, tree.getSize());
         System.out.println(tree.getAsList());
-        assertTrue(tree.removeItem("string2"));
+        tree.removeItem("string2");
         System.out.println(tree.getAsList());
         assertFalse(tree.elementExists("string2"));
-        assertEquals(4, tree.getSize());
-        assertTrue(tree.removeItem("string4"));
-        assertEquals(3, tree.getSize());
+        assertEquals(--size , tree.getSize());
+        tree.removeItem("string4");
+        assertEquals(--size, tree.getSize());
         assertFalse(tree.elementExists("string4"));
         System.out.println(tree.getAsList());
-        assertTrue(tree.removeItem("string3"));
-        assertEquals(2, tree.getSize());
+        tree.removeItem("string3");
+        assertEquals(--size, tree.getSize());
         System.out.println(tree.getAsList());
         assertFalse(tree.elementExists("string3"));
     }
-
 }

@@ -1,14 +1,12 @@
 package collections;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.org.apache.regexp.internal.RE;
-import exceptions.DuplicateValueException;
-import exceptions.NullValueException;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.ToIntBiFunction;
+
+import com.sun.istack.internal.NotNull;
+import exceptions.DuplicateValueException;
+import exceptions.NullValueException;
 
 public class BinarySearchTree <T> {
 
@@ -97,114 +95,45 @@ public class BinarySearchTree <T> {
         }
     }
 
-    public boolean removeItem2(T element) {
-        if (root == null || element == null) {
-            return false;
+    public void removeItem(T item){
+        if (item == null) {
+            return;
         }
-        Node child = root;
-        Node parent = child;
-        int diffFac = keyGen.applyAsInt(element, child.value);
-        while ((diffFac != 0) && (child != null)) {
-            if (diffFac < 0) {
-                parent = child;
-                child = child.left;
-            }
-            else {
-                parent = child;
-                child = child.right;
-            }
-            if (child != null)
-                diffFac = keyGen.applyAsInt(element, child.value);
-        }
-        if (diffFac == 0) {
-            Node replacementParent = parent;
-            Node replacement = child;
-            if (replacement.right != null) {
-                replacement = replacement.right;
-                while (replacement.left != null) {
-                    replacementParent = replacement;
-                    replacement = replacement.left;
-                }
-            }
-            replacementParent.left = replacement.right;
-            if (keyGen.applyAsInt(element, root.value) == 0) {
-                root.value = replacement.value;
-            } else if ((parent.left != null) && (keyGen.applyAsInt(parent.left.value, element) == 0)) {
-                parent.left.value = replacement.value;
-            } else if ((parent.right != null) && (keyGen.applyAsInt(parent.right.value, element) == 0)) {
-                parent.right.value = replacement.value;
-            }
+        if (elementExists(item)){
             size --;
-            return true;
         }
-        return false;
+        root = deleteNode(root, item);
     }
 
-    public boolean removeItem(T item) {
-        if (item == null || root == null) {
-            return false;
+    private Node deleteNode(Node root, T item) {
+        if (root == null) {
+            return null;
         }
-        /*
-        we're looking for the node containing the searched value and its parent
-         */
-        Node val = root;
-        Node valParent = root;
         int diffFactor = keyGen.applyAsInt(item, root.value);
-        while ((diffFactor != 0) && (val != null)) {
-            diffFactor = keyGen.applyAsInt(item, val.value);
-            if (diffFactor < 0) {
-                valParent = val;
-                val = val.left;
-            }
-            if (diffFactor > 0) {
-                valParent = val;
-                val = val.right;
-            }
-        }
-        /*
-        if we haven't found a node then the value doesn't exist in the tree
-         */
-        if (val == null) {
-            return false;
-        }
-        /*
-        we're looking for the node whose value will replace the value node
-        this will be the leftmost node in the right subtree of the val node,
-        or, if the right subtree is empty, the left node one level under
-         */
-        Node replace = val;
-        Node replaceParent = valParent;
-        if (replace.right == null) {
-            replace = replace.left;
+        if (diffFactor > 0) {
+            root.right = deleteNode(root.right, item);
+        }else if (diffFactor < 0) {
+            root.left = deleteNode(root.left, item);
         } else {
-            replace = replace.right;
-            while (replace.left != null) {
-                replaceParent = replace;
-                replace = replace.left;
+            if (root.left == null) {
+                return root.right;
+            } else if (root.right == null) {
+                 return root.left;
             }
+            root.value = findMin(root.right);
+            root.right = deleteNode(root.right, root.value);
         }
-        /*
-        if we haven't found a replace, the node val must be a leaf
-         */
-        if (replace == null) {
-            /*
-            it might be that its the only node, therefore node to delete is root
-             */
-            if (root == val) {
-                root = null;
-                size --;
-                return true;
-            }
-            if (valParent.left == val) {
-                valParent.left = null;
-            }
-            if (valParent.right == val) {
-                valParent.right = null;
-            }
-            return true;
+        return root;
+    }
+
+
+    private T findMin(Node root) {
+        if (root.left != null) {
+            return findMin(root.left);
         }
-        val.value = replace.value;
-        replaceParent =
+        else {
+            return root.value;
+        }
     }
 
     public int getSize(){
