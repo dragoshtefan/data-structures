@@ -2,70 +2,64 @@ package collections;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.ToIntBiFunction;
 
-import com.sun.istack.internal.NotNull;
-import exceptions.DuplicateValueException;
-import exceptions.NullValueException;
-
-public class BinarySearchTree <T> {
+public class BinarySearchTree <K extends Comparable<K>, V> {
 
     private Node root;
-    private ToIntBiFunction<T, T> keyGen;
     private int size;
 
-    public BinarySearchTree(@NotNull ToIntBiFunction<T, T> keyGen) {
+    public BinarySearchTree() {
         root = null;
-        this.keyGen = keyGen;
         size = 0;
     }
 
 
-    public void add(T item) throws NullValueException, DuplicateValueException {
-        if (item == null) {
-            throw new NullValueException();
+    public void add(K key, V value) {
+        if (key == null) {
+            return;
         }
         if (root == null) {
-            root = new Node(item);
+            root = new Node(new Entry<K, V>(key, value));
             size ++;
         }
         else {
-            addInSubTree(item, root, keyGen.applyAsInt(item, root.value));
+            addInSubTree(key, value, root, key.compareTo(root.value.getKey()));
         }
     }
 
-    private void addInSubTree(T item, Node subTree, int compareFactor) throws DuplicateValueException {
+    private void addInSubTree(K key, V value, Node subTree, int compareFactor) {
         if (compareFactor == 0) {
-            throw new DuplicateValueException(item);
+            return;
         }
         if (compareFactor > 0) {
             if (subTree.right == null) {
-                subTree.right = new Node(item);
+                subTree.right = new Node(key, value);
                 size++;
-                return;
             } else {
-                addInSubTree(item, subTree.right, keyGen.applyAsInt(item, subTree.right.value));
+                addInSubTree(key, value, subTree.right, key.compareTo(subTree.right.value.getKey()));
             }
         } else {
             if (subTree.left == null) {
-                subTree.left = new Node(item);
+                subTree.left = new Node(key, value);
                 size++;
-                return;
             } else {
-                addInSubTree(item, subTree.left, keyGen.applyAsInt(item, subTree.left.value));
+                addInSubTree(key, value, subTree.left, key.compareTo(subTree.left.value.getKey()));
             }
         }
     }
 
+    public boolean isEmpty(){
+        return size == 0;
+    }
 
 
-    public List<T> getAsList() {
-        List<T> values = new ArrayList<T>();
+    public List<Entry<K, V>> getAsList() {
+        List<Entry<K, V>> values = new ArrayList<>();
         createValuesList(values, root);
         return values;
     }
 
-    private void createValuesList(List<T> valuesList, Node tree){
+    private void createValuesList(List<Entry<K, V>> valuesList, Node tree){
         if (tree == null)
             return;
         createValuesList(valuesList, tree.left);
@@ -73,47 +67,42 @@ public class BinarySearchTree <T> {
         createValuesList(valuesList, tree.right);
     }
 
-    ToIntBiFunction setKeyGen(@NotNull ToIntBiFunction<T, T> keyGen) {
-        this.keyGen = keyGen;
-        return keyGen;
+    public boolean keyExists(K key) {
+        return key != null && searchTree(key, root);
     }
 
-    public boolean elementExists(T element) {
-        return element != null && searchTree(element, root);
-    }
-
-    private boolean searchTree(T element, Node tree) {
+    private boolean searchTree(K key, Node tree) {
         if (tree == null)
             return false;
-        int diffFactor = keyGen.applyAsInt(element, tree.value);
+        int diffFactor = key.compareTo(tree.value.getKey());
         if (diffFactor == 0)
             return true;
         if (diffFactor < 0) {
-            return (searchTree(element, tree.left));
+            return (searchTree(key, tree.left));
         } else {
-            return (searchTree(element, tree.right));
+            return (searchTree(key, tree.right));
         }
     }
 
-    public void removeItem(T item){
-        if (item == null) {
+    public void removeItem(K key){
+        if (key == null) {
             return;
         }
-        if (elementExists(item)){
+        if (keyExists(key)){
             size --;
         }
-        root = deleteNode(root, item);
+        root = deleteNode(root, key);
     }
 
-    private Node deleteNode(Node root, T item) {
+    private Node deleteNode(Node root, K key) {
         if (root == null) {
             return null;
         }
-        int diffFactor = keyGen.applyAsInt(item, root.value);
+        int diffFactor = key.compareTo(root.value.getKey());
         if (diffFactor > 0) {
-            root.right = deleteNode(root.right, item);
+            root.right = deleteNode(root.right, key);
         }else if (diffFactor < 0) {
-            root.left = deleteNode(root.left, item);
+            root.left = deleteNode(root.left, key);
         } else {
             if (root.left == null) {
                 return root.right;
@@ -121,13 +110,13 @@ public class BinarySearchTree <T> {
                  return root.left;
             }
             root.value = findMin(root.right);
-            root.right = deleteNode(root.right, root.value);
+            root.right = deleteNode(root.right, root.value.getKey());
         }
         return root;
     }
 
 
-    private T findMin(Node root) {
+    private Entry<K,V> findMin(Node root) {
         if (root.left != null) {
             return findMin(root.left);
         }
@@ -140,17 +129,42 @@ public class BinarySearchTree <T> {
         return size;
     }
 
+    public V getOfKey(K key){
+        Node node = searchInTree(key, root);
+        if (node == null || node.value == null)
+            return null;
+        return node.value.getValue();
+    }
+
+    private Node searchInTree(K key, Node tree){
+        if (tree == null || key == null) {
+            return null;
+        }
+        int diffFactor = key.compareTo(tree.value.getKey());
+        if (diffFactor == 0) {
+            return tree;
+        } else if (diffFactor < 0){
+            return searchInTree(key, tree.left);
+        } else {
+            return searchInTree(key, tree.right);
+        }
+
+    }
 
     private class  Node  {
 
         private Node left;
         private Node right;
-        private T value;
+        private Entry<K,V> value;
 
-        Node(T value){
+        Node(Entry<K,V> value){
             this.value = value;
             left = null;
             right = null;
+        }
+
+        Node(K key, V value) {
+            this.value = new Entry<K, V>(key, value);
         }
     }
 }

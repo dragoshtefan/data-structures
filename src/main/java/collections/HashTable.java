@@ -1,32 +1,39 @@
 package collections;
-import collectionInterfaces.Map;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class HashTable <K,V> implements Serializable, Map<K, V> {
+import collectionInterfaces.Map;
+import com.google.common.collect.ImmutableSet;
+
+public class HashTable <K extends Comparable< K>,V> implements Serializable, Map<K, V> {
 
     private static final float DEFAULT_FILL_FACTOR = 0.7f;
     private static final int DEFAULT_START_SIZE = 10;
 
-    private BinarySearchTree<Map.Entry<K, V>>[] buckets;
+    private List<BinarySearchTree<K, V>> buckets;
     private float fillFactor;
-    private int size;
+    private int bucketNo;
+    private int noElem;
 
 
-    public HashTable(int size){
-        this(size, DEFAULT_FILL_FACTOR);
+    public HashTable(@Valid int bucketNo){
+
+            this(bucketNo, DEFAULT_FILL_FACTOR);
     }
 
-    public HashTable(int size, float fillFactor) {
-        this.size = size;
+    public HashTable(int bucketNo, float fillFactor) {
+        this.bucketNo = bucketNo;
         this.fillFactor = fillFactor;
-     //   this.buckets = new BinarySearchTree()[];
-        for (BinarySearchTree bucket : this.buckets) {
-   //         bucket = new
+        this.buckets = new ArrayList<BinarySearchTree<K, V>>(bucketNo);
+        for (int i = 0; i < bucketNo; i++) {
+            buckets.set(i, new BinarySearchTree<>());
         }
+        noElem = 0;
     }
 
     public HashTable(){
@@ -34,61 +41,89 @@ public class HashTable <K,V> implements Serializable, Map<K, V> {
     }
 
     public boolean isEmpty() {
-        return false;
+        return bucketNo == 0;
     }
 
     public int size() {
-        return 0;
+        return bucketNo;
     }
 
-    public boolean containsKey() {
+    @Override
+    public boolean containsKey(K key) {
+        int hash = key.hashCode() % this.bucketNo;
+        BinarySearchTree<K,V> bucket = buckets.get(hash);
+        if (bucket == null || bucket.isEmpty()) {
+            return false;
+        }
+        for (Entry<K, V> entry : bucket.getAsList()) {
+            if (entry.getKey().equals(key)){
+                return true;
+            }
+        }
         return false;
     }
 
+    @Override
     public boolean containsValue(V object) {
+        for (BinarySearchTree<K,V> bucket : buckets) {
+            for (Entry<K, V> entry : bucket.getAsList()){
+                if (entry.getValue().equals(object)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
+    @Override
     public V get(K key) {
-        return null;
+        int hash = key.hashCode() % bucketNo;
+        BinarySearchTree<K,V> bucket = buckets.get(hash);
+        return bucket.getOfKey(key);
     }
 
+    @Override
     public V put(K key, V val) {
-        return null;
+        int hash = key.hashCode() % this.size();
+        if (buckets.get(hash).getSize() / this.size() > this.fillFactor){
+            this.doubleCapacity();
+            hash = key.hashCode() % this.size();
+        }
+        buckets.get(hash).add(key, val);
+        return val;
     }
 
+    private void doubleCapacity() {
+        List<BinarySearchTree<K, V>> newBuckets = new ArrayList<>(bucketNo);
+        int newSize = bucketNo * 2;
+        for (int i = 0; i < newSize; i++) {
+            newBuckets.set(i, new BinarySearchTree<>());
+        }
+        for (int i = 0; i < bucketNo; i++){
+            for (Entry<K, V> entry : buckets.get(i).getAsList()) {
+                int newHash = entry.getKey().hashCode() % newSize;
+                newBuckets.get(newHash).add(entry.getKey(), entry.getValue());
+            }
+        }
+        this.buckets = newBuckets;
+        this.bucketNo = newSize;
+    }
+
+    @Override
     public V remove(K key) {
-        return null;
+        int hash = key.hashCode() % bucketNo;
+        V value = buckets.get(hash).getOfKey(key);
+        buckets.get(hash).removeItem(key);
+        return value;
     }
 
+    @Override
     public Set<K> keySet() {
-        return null;
-    }
-
-    class Entry<K, V> implements Map.Entry, Serializable {
-
-        private K key;
-        private V value;
-
-        Entry(K key, V value){
-            this.key = key;
-            this.value = value;
+        final Set<K> keys = new HashSet<K>();
+        for (int i = 0; i < bucketNo; i++) {
+            keys.addAll(buckets.get(i).getAsList().stream().map(Entry::getKey).collect(Collectors.toList()));
         }
-
-        @Override
-        public K getKey() {
-            return key;
-        }
-
-        @Override
-        public V getValue() {
-            return value;
-        }
-
-        @Override
-        public V setValue(Object value) {
-            return null;
-        }
+        return ImmutableSet.copyOf(keys);
     }
 
 }

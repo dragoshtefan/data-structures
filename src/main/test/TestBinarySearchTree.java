@@ -15,22 +15,22 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestBinarySearchTree {
 
-    BinarySearchTree<String> tree;
+    BinarySearchTree<String, Integer> tree;
 
 
     @Before
     public void setUp() throws DuplicateValueException, NullValueException {
-        tree = new BinarySearchTree<>(String::compareTo);
-        tree.add("string3");
-        tree.add("string2");
-        tree.add("string4");
-        tree.add("string6");
-        tree.add("string7");
+        tree = new BinarySearchTree<>();
+        tree.add("string3", 3);
+        tree.add("string2", 2);
+        tree.add("string4", 4);
+        tree.add("string6", 6);
+        tree.add("string7", 7);
     }
 
     @Test
     public void testACreation() {
-        BinarySearchTree<String> tree2 = new BinarySearchTree<>(String::compareTo);
+        BinarySearchTree<String, String> tree2 = new BinarySearchTree<>();
         assertNotNull(tree2);
         assertEquals(0, tree2.getSize());
     }
@@ -38,11 +38,11 @@ public class TestBinarySearchTree {
     @Test
     public void testBGetSet() {
         assertNotNull(tree);
-        assertFalse(tree.elementExists("string1"));
-        assertTrue(tree.elementExists("string2"));
-        assertTrue(tree.elementExists("string3"));
-        assertTrue(tree.elementExists("string4"));
-        assertFalse(tree.elementExists("stringasdad"));
+        assertFalse(tree.keyExists("string1"));
+        assertTrue(tree.keyExists("string2"));
+        assertTrue(tree.keyExists("string3"));
+        assertTrue(tree.keyExists("string4"));
+        assertFalse(tree.keyExists("stringasdad"));
         assertEquals(5,tree.getSize());
     }
 
@@ -56,15 +56,15 @@ public class TestBinarySearchTree {
         System.out.println(tree.getAsList());
         tree.removeItem("string2");
         System.out.println(tree.getAsList());
-        assertFalse(tree.elementExists("string2"));
+        assertFalse(tree.keyExists("string2"));
         assertEquals(--size , tree.getSize());
         tree.removeItem("string4");
         assertEquals(--size, tree.getSize());
-        assertFalse(tree.elementExists("string4"));
+        assertFalse(tree.keyExists("string4"));
         System.out.println(tree.getAsList());
         tree.removeItem("string3");
         assertEquals(--size, tree.getSize());
         System.out.println(tree.getAsList());
-        assertFalse(tree.elementExists("string3"));
+        assertFalse(tree.keyExists("string3"));
     }
 }
