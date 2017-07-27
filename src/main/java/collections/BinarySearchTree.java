@@ -3,7 +3,9 @@ package collections;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BinarySearchTree <K extends Comparable<K>, V> {
+import collectionInterfaces.KeyValueTree;
+
+public class BinarySearchTree <K extends Comparable<K>, V> implements KeyValueTree<K, V> {
 
     private Node root;
     private int size;
@@ -14,6 +16,7 @@ public class BinarySearchTree <K extends Comparable<K>, V> {
     }
 
 
+    @Override
     public void add(K key, V value) {
         if (key == null) {
             return;
@@ -48,6 +51,7 @@ public class BinarySearchTree <K extends Comparable<K>, V> {
         }
     }
 
+    @Override
     public boolean isEmpty(){
         return size == 0;
     }
@@ -67,6 +71,7 @@ public class BinarySearchTree <K extends Comparable<K>, V> {
         createValuesList(valuesList, tree.right);
     }
 
+    @Override
     public boolean keyExists(K key) {
         return key != null && searchTree(key, root);
     }
@@ -84,6 +89,7 @@ public class BinarySearchTree <K extends Comparable<K>, V> {
         }
     }
 
+    @Override
     public void removeItem(K key){
         if (key == null) {
             return;
@@ -125,11 +131,13 @@ public class BinarySearchTree <K extends Comparable<K>, V> {
         }
     }
 
+    @Override
     public int getSize(){
         return size;
     }
 
-    public V getOfKey(K key){
+    @Override
+    public V getValue(K key){
         Node node = searchInTree(key, root);
         if (node == null || node.value == null)
             return null;

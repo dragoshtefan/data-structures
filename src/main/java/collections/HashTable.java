@@ -21,7 +21,7 @@ public class HashTable <K extends Comparable< K>,V> implements Serializable, Map
     private int noElem;
 
 
-    public HashTable(@Valid int bucketNo){
+    public HashTable(int bucketNo){
 
             this(bucketNo, DEFAULT_FILL_FACTOR);
     }
@@ -79,7 +79,7 @@ public class HashTable <K extends Comparable< K>,V> implements Serializable, Map
     public V get(K key) {
         int hash = key.hashCode() % bucketNo;
         BinarySearchTree<K,V> bucket = buckets.get(hash);
-        return bucket.getOfKey(key);
+        return bucket.getValue(key);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class HashTable <K extends Comparable< K>,V> implements Serializable, Map
     @Override
     public V remove(K key) {
         int hash = key.hashCode() % bucketNo;
-        V value = buckets.get(hash).getOfKey(key);
+        V value = buckets.get(hash).getValue(key);
         buckets.get(hash).removeItem(key);
         return value;
     }

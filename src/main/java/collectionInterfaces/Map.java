@@ -22,14 +22,4 @@ public interface Map<K extends Comparable<K>, V> {
     V remove(K key);
 
     Set<K> keySet();
-
-    interface Entry<K, V> {
-
-        K getKey();
-
-        V getValue();
-
-        V setValue(V value);
-
-    }
 }

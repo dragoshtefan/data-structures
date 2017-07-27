@@ -2,9 +2,9 @@ package collections;
 
 import java.io.Serializable;
 
-import collectionInterfaces.Map;
+import collectionInterfaces.IEntry;
 
-public class Entry<C, W> implements Map.Entry<C, W>, Serializable {
+public class Entry<C, W> implements IEntry<C, W>, Serializable {
 
     private C key;
     private W value;
@@ -28,6 +28,4 @@ public class Entry<C, W> implements Map.Entry<C, W>, Serializable {
     public W setValue(Object value) {
         return null;
     }
-
-
 }
