@@ -6,6 +6,11 @@ public interface List<V> {
 
     V removeItem(V value);
 
+    int size();;
+
+    V get(int i);
+
+    V remove(int i);
 
 
 }
